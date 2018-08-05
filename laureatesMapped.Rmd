@@ -1,0 +1,22 @@
+---
+title: "Birthplaces of Nobel Laureates"
+author: "Bojan Zunar"
+date: '5 August 2018 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+Have you ever wondered where Nobel laureates were born?  
+Well, now is your chance to find out!  
+Why don't you click on the labels to learn some more?
+
+```{r echo = FALSE, fig.align = "center", out.width = "100%"}
+
+load(file = "D:/RStudio/09-DevelopingDataProducts/laureatesMapped")
+laureates.mapped
+```
+
