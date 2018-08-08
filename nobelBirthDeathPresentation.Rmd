@@ -1,0 +1,128 @@
+---
+title: "Nobel Laureates: <br> Birth, Death and Life Lived"
+author: "Bojan Zunar"
+date: '6 August 2018 '
+output: 
+    ioslides_presentation:
+      widescreen: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Intro
+
+Everybody knows about **Nobel prize**. But have you ever wondered:
+
+- *How old* were the first Nobel candidates when they got the awards?
+- Who is *the youngest* Nobel laureate?
+- *How long* do Nobel laureates live?
+- *How long* do Nobel laureates live after they get the award?
+
+If you would like to answer these or similar questions, <br> look at the next couple of slides :)
+
+***
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 6}
+
+library(lubridate); library(dplyr); library(tidyr); library(reshape2); library(ggplot2); 
+library(ggsci); library(plotly); library(stringr)
+
+load("D:/RStudio/09-DevelopingDataProducts/laureatesFinal.rds")
+
+# How old were the candidates when awarded?
+ggp.award <- laureates.final %>%
+    mutate(Birth.Date = ymd(Birth.Date),
+           Award.Date = ymd(paste0(Year, "-12-10")),
+           Death.Date = ymd(Death.Date),
+           Year = as.numeric(Year),
+           Motivation = str_wrap(Motivation, width = 80, indent = 0, exdent = 0)) %>%
+    drop_na(Birth.Date, Award.Date) %>%
+    mutate(Old.When.Awarded = Award.Date - Birth.Date,
+           Old.When.Died = Death.Date - Birth.Date,
+           Lived.With.Award = Death.Date - Award.Date) %>%
+    mutate(Name = paste0(Full.Name, ", ", Year, "\n", Motivation)) %>%
+    ggplot(., aes(label = Name, x = Year, y = time_length(Old.When.Awarded, "years"), 
+                  color = Category)) + 
+    geom_point(alpha = 0.5, size = 2) + 
+    geom_smooth(method = 'loess') + 
+    scale_color_npg() +
+    labs(x = "Nobel Prize [year]", y = "Age when Awarded [years]", 
+         title = "How old were the candidates when awarded?") +
+    theme(legend.title = element_blank(), legend.position = "bottom") +
+    theme_classic()
+
+ggp.award %>% ggplotly(tooltip = "Name") %>% 
+    rangeslider(1900, 2017) %>% 
+    style(hoverinfo = "none", traces = 7:17) %>%
+    layout(legend = list(orientation = "h", x = 0.5, y = -0.55))
+```
+
+***
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 6}
+
+# How old were the laureates when they died?
+ggp.award <- laureates.final %>%
+    mutate(Birth.Date = ymd(Birth.Date),
+           Award.Date = ymd(paste0(Year, "-12-10")),
+           Death.Date = ymd(Death.Date),
+           Year = as.numeric(Year),
+           Motivation = str_wrap(Motivation, width = 80, indent = 0, exdent = 0)) %>%
+    drop_na(Birth.Date, Award.Date) %>%
+    mutate(Old.When.Awarded = Award.Date - Birth.Date,
+           Old.When.Died = Death.Date - Birth.Date,
+           Lived.With.Award = Death.Date - Award.Date) %>%
+    mutate(Name = paste0(Full.Name, ", ", Year, "\n", Motivation)) %>%
+    ggplot(., aes(label = Name, x = Year, y = time_length(Old.When.Died, "years"), 
+                  color = Category)) + 
+    geom_point(alpha = 0.5, size = 2) + 
+    geom_smooth(method = 'loess') + 
+    scale_color_npg() +
+    labs(x = "Nobel Prize [year]", y = "Longevity [years]", 
+         title = "How old were the laureates when they died?") +
+    theme(legend.title = element_blank(), legend.position = "bottom") +
+    theme_classic()
+
+ggp.award %>% ggplotly(tooltip = "Name") %>% 
+    rangeslider(1900, 2017) %>% 
+    style(hoverinfo = "none", traces = 7:17) %>%
+    layout(legend = list(orientation = "h", x = 0.5, y = -0.55))
+```
+
+***
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 6}
+
+# How long did the laureates lived with the award?
+ggp.award <- laureates.final %>%
+    mutate(Birth.Date = ymd(Birth.Date),
+           Award.Date = ymd(paste0(Year, "-12-10")),
+           Death.Date = ymd(Death.Date),
+           Year = as.numeric(Year),
+           Motivation = str_wrap(Motivation, width = 80, indent = 0, exdent = 0)) %>%
+    drop_na(Birth.Date, Award.Date) %>%
+    mutate(Old.When.Awarded = Award.Date - Birth.Date,
+           Old.When.Died = Death.Date - Birth.Date,
+           Lived.With.Award = Death.Date - Award.Date) %>%
+    mutate(Name = paste0(Full.Name, ", ", Year, "\n", Motivation)) %>%
+    ggplot(., aes(label = Name, x = Year, y = time_length(Lived.With.Award, "years"), 
+                  color = Category)) + 
+    geom_point(alpha = 0.5, size = 2) + 
+    geom_smooth(method = 'loess') + 
+    scale_color_npg() +
+    labs(x = "Nobel Prize [year]", y = "Alive and laureated [years]", 
+         title = "How long did the laureates lived with the award?") +
+    theme(legend.title = element_blank(), legend.position = "bottom") +
+    theme_classic()
+
+ggp.award %>% ggplotly(tooltip = "Name") %>% 
+    rangeslider(1900, 2017) %>% 
+    style(hoverinfo = "none", traces = 7:17) %>%
+    layout(legend = list(orientation = "h", x = 0.5, y = -0.55))
+```
+
+## Have a great day!
+
+![](http://rstv.nic.in/wp-content/uploads/2018/05/Nobel-prize.jpg)

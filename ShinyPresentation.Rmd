@@ -1,0 +1,85 @@
+---
+title: "Birth and Death <br> of Nobel Laureates"
+author: "Bojan Zunar"
+date: '8 August 2018 '
+output: 
+    ioslides_presentation:
+      widescreen: true
+      smaller: true
+      css: styles.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## The Laureates
+
+**Nobel laureates** are often thought of as *bona fide* greater-than-life scientific celebrities. Last year [Kaggle](https://www.kaggle.com/), a platform for predictive modelling and analytics competitions, has compiled the [Nobel Laureates Dataset](https://www.kaggle.com/nobelfoundation/nobel-laureates) which details 18 variables on 969 laureates. While many have probed the dataset statistically, only few dared to shape it into interactive tools.
+
+```{r echo = TRUE}
+
+laureates <- readRDS("D:/RStudio/09-DevelopingDataProducts/Coursera/laureates.RDS")
+dim(laureates)
+colnames(laureates)
+```
+
+## Leaflet, we ploted their birthplaces
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 5}
+
+library(htmlwidgets); library(leaflet); library(htmltools)
+
+load(file = "D:/RStudio/09-DevelopingDataProducts/Coursera/laureatesMapped")
+laureates.mapped
+```
+  
+  
+However, most of the dataset remained unused. Therefore, we asked with Plotly...
+
+***
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 6}
+
+library(lubridate); library(dplyr); library(tidyr); library(reshape2); library(ggplot2); 
+library(ggsci); library(plotly); library(stringr)
+
+laureates.final <- readRDS("D:/RStudio/09-DevelopingDataProducts/Coursera/laureatesFinal.RDS")
+
+# How old were the candidates when awarded?
+ggp.award <- laureates.final %>%
+    mutate(Birth.Date = ymd(Birth.Date),
+           Award.Date = ymd(paste0(Year, "-12-10")),
+           Death.Date = ymd(Death.Date),
+           Year = as.numeric(Year),
+           Motivation = str_wrap(Motivation, width = 80, indent = 0, exdent = 0)) %>%
+    drop_na(Birth.Date, Award.Date) %>%
+    mutate(Old.When.Awarded = Award.Date - Birth.Date,
+           Old.When.Died = Death.Date - Birth.Date,
+           Lived.With.Award = Death.Date - Award.Date) %>%
+    mutate(Name = paste0(Full.Name, ", ", Year, "\n", Motivation)) %>%
+    ggplot(., aes(label = Name, x = Year, y = time_length(Old.When.Awarded, "years"), 
+                  color = Category)) + 
+    geom_point(alpha = 0.5, size = 2) + 
+    geom_smooth(method = 'loess') + 
+    scale_color_npg() +
+    labs(x = "Nobel Prize [year]", y = "Age when Awarded [years]", 
+         title = "How old were the candidates when awarded?") +
+    theme(legend.title = element_blank(), legend.position = "bottom") +
+    theme_classic()
+
+ggp.award %>% ggplotly(tooltip = "Name") %>% 
+    rangeslider(1900, 2017) %>% 
+    style(hoverinfo = "none", traces = 7:17) %>%
+    layout(legend = list(orientation = "h", x = 0.5, y = -0.55))
+```
+
+## Finally, we turned to Shiny...
+
+We integrated Leaflet and Shiny to produce an interactive app that draws the laureates by their places of birth and death, and filters them by the year in which they were awarded, their age at the time, and the category for which they were awarded. Each marker contains additional information about the laureate and includes the Wikipedia link.  
+
+[Why not take a look?](https://bzunar.shinyapps.io/nobelbirthdeath/)
+  
+   
+![](http://gradschool.utah.edu/osher-748-2015/02-2.png)
+
