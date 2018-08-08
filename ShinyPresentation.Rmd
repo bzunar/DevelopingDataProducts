@@ -24,7 +24,7 @@ dim(laureates)
 colnames(laureates)
 ```
 
-## Leaflet, we ploted their birthplaces
+## With Leaflet, we ploted their birthplaces
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.height = 5}
 
@@ -35,7 +35,7 @@ laureates.mapped
 ```
   
   
-However, most of the dataset remained unused. Therefore, we asked with Plotly...
+But most of the dataset remained unused. Therefore, we asked **Plotly**...
 
 ***
 
